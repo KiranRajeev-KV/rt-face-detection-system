@@ -12,7 +12,6 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8000
     database_url: str = "postgresql+psycopg://face_stream:face_stream@postgres:5432/face_stream"
-    allowed_origin: str = "http://localhost:5173"
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:5173"])
     max_frame_size_bytes: int = 1_048_576
     max_metadata_size_bytes: int = 16_384

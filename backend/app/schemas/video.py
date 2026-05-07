@@ -17,6 +17,4 @@ class FrameResult(BaseModel):
     has_face: bool
     roi: RoiBounds | None
     processing_ms: float
-    annotated_image_base64: str
     warning: str | None = None
-

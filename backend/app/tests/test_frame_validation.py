@@ -66,3 +66,4 @@ def test_valid_frame_without_face_returns_frame_result(test_app):
     assert message["has_face"] is False
     assert message["roi"] is None
     assert message["warning"] is None
+    assert "annotated_image_base64" not in message

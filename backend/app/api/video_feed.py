@@ -27,6 +27,8 @@ async def video_feed(
     await websocket.accept()
     processor = app_state.get_frame_processor()
     async with session_manager.session() as db_session:
+        await processor.ensure_session(db_session=db_session, session_id=parsed_session_id)
+        await db_session.commit()
         while True:
             try:
                 message = await websocket.receive()

@@ -29,7 +29,6 @@ type FrameResult = {
     frame_height: number;
   };
   processing_ms: number;
-  annotated_image_base64: string;
   warning: string | null;
 };
 
@@ -46,10 +45,6 @@ const DEFAULT_FPS = 5;
 
 function createSessionId(): string {
   return crypto.randomUUID();
-}
-
-function jpegDataUrl(base64Image: string): string {
-  return `data:image/jpeg;base64,${base64Image}`;
 }
 
 async function fetchRoiHistory(sessionId: string): Promise<RoiItem[]> {
@@ -75,7 +70,7 @@ function App() {
 
   const [sessionId, setSessionId] = useState<string>(() => createSessionId());
   const [status, setStatus] = useState("idle");
-  const [annotatedImage, setAnnotatedImage] = useState<string | null>(null);
+  const [streamUrl, setStreamUrl] = useState<string | null>(null);
   const [latestResult, setLatestResult] = useState<FrameResult | null>(null);
   const [roiHistory, setRoiHistory] = useState<RoiItem[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -104,7 +99,7 @@ function App() {
   async function startStreaming() {
     setErrorMessage(null);
     setWarningMessage(null);
-    setAnnotatedImage(null);
+    setStreamUrl(null);
     setLatestResult(null);
     setRoiHistory([]);
     setSentFrames(0);
@@ -137,6 +132,7 @@ function App() {
 
       socket.onopen = () => {
         setStatus("streaming");
+        setStreamUrl(`${API_BASE_URL}/api/v1/video/stream?session_id=${nextSessionId}`);
         timerRef.current = window.setInterval(() => {
           void captureAndSendFrame();
         }, 1000 / DEFAULT_FPS);
@@ -151,7 +147,6 @@ function App() {
         }
         setReceivedFrames((value) => value + 1);
         setLatestResult(data);
-        setAnnotatedImage(jpegDataUrl(data.annotated_image_base64));
         setWarningMessage(data.warning);
       };
 
@@ -161,6 +156,8 @@ function App() {
 
       socket.onclose = () => {
         setStatus("stopped");
+        setStreamUrl(null);
+        setLatestResult(null);
         clearCaptureTimer();
       };
     } catch (error) {
@@ -181,6 +178,8 @@ function App() {
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
+    setStreamUrl(null);
+    setLatestResult(null);
     setStatus("stopped");
   }
 
@@ -299,10 +298,10 @@ function App() {
         <section className="panel video-panel">
           <div className="panel-heading">
             <h2>Annotated Result</h2>
-            <p>Returned directly by the backend after MediaPipe detection and Pillow drawing.</p>
+            <p>Rendered from the processed MJPEG stream after MediaPipe detection and Pillow drawing.</p>
           </div>
-          {annotatedImage ? (
-            <img className="video-tile" src={annotatedImage} alt="Annotated backend frame" />
+          {streamUrl !== null ? (
+            <img className="video-tile" src={streamUrl} alt="Annotated backend stream" />
           ) : (
             <div className="placeholder-tile">Processed frame will appear here.</div>
           )}
@@ -357,4 +356,3 @@ function App() {
 }
 
 export default App;
-

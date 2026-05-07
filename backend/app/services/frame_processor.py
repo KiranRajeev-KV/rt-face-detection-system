@@ -33,6 +33,15 @@ class FrameProcessor:
         self.detector = detector
         self.latest_frame_store = latest_frame_store
 
+    async def ensure_session(
+        self,
+        *,
+        db_session: AsyncSession,
+        session_id: UUID,
+    ) -> None:
+        session_repo = SessionRepository(db_session)
+        await session_repo.get_or_create(session_id)
+
     async def process_message(
         self,
         *,
@@ -91,7 +100,6 @@ class FrameProcessor:
                 else None
             ),
             processing_ms=processing_ms,
-            annotated_image_base64=base64.b64encode(annotated_bytes).decode("ascii"),
             warning=warning,
         )
 

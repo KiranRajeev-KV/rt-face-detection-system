@@ -28,18 +28,21 @@ Endpoint-level behavior details are documented in [API_CONTRACT.md](docs/API_CON
 
 ```mermaid
 flowchart LR
-    A[Browser / React Frontend] -- WS JPEG frames + metadata --> B[/api/v1/video/feed]
-    B --> C[FrameProcessor]
-    C --> D[MediaPipe FaceDetector]
-    C --> E[ROI normalize + Pillow draw]
-    C --> F[(LatestFrameStore<br/>latest frame + version)]
-    C --> G[(PostgreSQL<br/>video_sessions + roi_detections)]
-    A -- GET session_id --> H[/api/v1/video/stream MJPEG]
+    A["Browser / React Frontend"] -- "WS JPEG frames + metadata" --> B["/api/v1/video/feed"]
+
+    B --> C["FrameProcessor"]
+    C --> D["MediaPipe FaceDetector"]
+    C --> E["ROI normalize + Pillow draw"]
+    C --> F[("LatestFrameStore<br/>latest frame + version")]
+    C --> G[("PostgreSQL<br/>video_sessions + roi_detections")]
+
+    A -- "GET session_id" --> H["/api/v1/video/stream MJPEG"]
     H --> F
-    H -- multipart/x-mixed-replace --> A
-    A -- GET /api/v1/roi --> I[/api/v1/roi]
+    H -- "multipart/x-mixed-replace" --> A
+
+    A -- "GET /api/v1/roi" --> I["/api/v1/roi"]
     I --> G
-    I -- ROI JSON --> A
+    I -- "ROI JSON" --> A
 ```
 
 ## Runtime Workflow

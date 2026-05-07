@@ -106,6 +106,9 @@ Full contract: [API_CONTRACT.md](docs/API_CONTRACT.md)
 
 ## Architecture Overview
 
+<img width="1448" height="1086" alt="image" src="https://github.com/user-attachments/assets/7e7d780c-1049-4d1c-913d-b1b9bb1ac9c9" />
+
+
 The browser uploads JPEG frames with frame metadata over a WebSocket ingestion channel. The backend decodes the image, runs MediaPipe face detection, normalizes/clips ROI bounds, draws ROI on the frame with Pillow, stores the latest annotated frame in memory, and persists ROI rows in PostgreSQL. The processed feed endpoint serves a multipart MJPEG stream with latest-frame semantics per session. The ROI endpoint serves recent ROI rows for dashboard display. The design favors a small, assignment-scoped architecture with clear separation between API, services, repositories, and database layers.
 
 Deep design notes: [ARCHITECTURE.md](docs/ARCHITECTURE.md)
